@@ -60,6 +60,7 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
         btnLogin.addActionListener(this);
         btnSend.addActionListener(this);
         tfMessage.addActionListener(this);
+        btnDisconnect.addActionListener(this);
 
         panelTop.add(tfIPAddress);
         panelTop.add(tfPort);
@@ -73,7 +74,7 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
 
         add(panelTop, BorderLayout.NORTH);
         add(scrollLog, BorderLayout.CENTER);
-       add(panelBottom, BorderLayout.SOUTH);
+      // add(panelBottom, BorderLayout.SOUTH);
         add(scrollUsers, BorderLayout.EAST);
         setVisible(true);
     }
@@ -100,21 +101,32 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
             setAlwaysOnTop(cbAlwaysOnTop.isSelected());
         } else if (src == btnLogin || src == tfIPAddress || src == tfLogin || src == tfPassword || src == tfPort) {
             connect();
-        } else if (src == btnSend || src == tfMessage) {
+        } else if (src == btnDisconnect) {
+            disconnect();
+
+        }else if (src == btnSend || src == tfMessage) {
             sendMessage();
         } else {
             throw new RuntimeException("Unknown source: " + src);
         }
     }
 
+    private void disconnect() {
+        if (socketThread != null){
+            socketThread.close();
+            panelBottom.setVisible(false);
+            panelTop.setVisible(true);
+        }
+        else log.append("Нет соединения");
+    }
+
     private void connect() {
         Socket socket = null;
         try {
             socket = new Socket(tfIPAddress.getText(), Integer.parseInt(tfPort.getText()));
-          //  add(panelBottom, BorderLayout.SOUTH);
-           // setVisible(true);
-            //panelTop.setVisible(false);
-
+          add(panelBottom, BorderLayout.SOUTH);
+        panelBottom.setVisible(true);
+        panelTop.setVisible(false);
         } catch (IOException e) {
             log.append("Exception: " + e.getMessage());
         }
